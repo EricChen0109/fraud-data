@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>詐騙案件統計</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #546377;
+            box-sizing: border-box;
+            font-family: "Noto Sans TC", sans-serif;
+            display: flex;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: 300;
+        }
+
+        a:hover {
+            color: yellow;
+        }
+
+        a,
+        label {
+            cursor: pointer;
+        }
+
+        .sideMenu {
+            width: 300px;
+            height: 100%;
+            background-color: #ff7575;
+            border-right: 3px solid #d1d1d1;
+            display: flex;
+            flex-direction: column;
+            padding: 50px 0;
+            box-shadow: 5px 0 5px rgba(23, 23, 54, 0.6);
+            position: fixed;
+            left: 0px;
+            top: 0;
+            transform: translateX(-100%);
+            transition: 0.5s;
+            z-index: 10;
+        }
+
+        .sideMenu form {
+            display: flex;
+            margin: 0 10px 50px;
+            border-radius: 100px;
+            border: 1px solid #fff;
+        }
+
+        .sideMenu form input {
+            width: 230px;
+        }
+
+        .sideMenu form button {
+            width: 50px;
+        }
+
+        .sideMenu form input,
+        .sideMenu form button {
+            border: none;
+            padding: 5px 10px;
+            background-color: transparent;
+            color: #fff;
+        }
+
+        .sideMenu form input:focus,
+        .sideMenu form button:focus {
+            outline: none;
+        }
+
+        .sideMenu label {
+            width: 20px;
+            height: 80px;
+            background-color: #d1d1d1;
+            color: #686666;
+            position: absolute;
+            right: -20px;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            line-height: 80px;
+            text-align: center;
+            border-radius: 0 5px 5px 0;
+            box-shadow: 5px 0 5px rgba(23, 23, 54, 0.6);
+        }
+
+        #sideMenu-active:checked+.sideMenu {
+            transform: translateX(0);
+        }
+
+        #sideMenu-active:checked+.sideMenu label .fas {
+            transform: scaleX(-1);
+        }
+
+        #sideMenu-active {
+            position: absolute;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        nav a {
+            display: block;
+            color: #fff;
+            padding: 20px 10px;
+            position: relative;
+            text-align: center;
+        }
+
+        nav a .fas {
+            margin-right: -1.1em;
+            transition: 0.3s;
+        }
+
+        nav a:hover .fas {
+            margin-right: 0em;
+        }
+
+        nav a+a::before {
+            content: "";
+            position: absolute;
+            border-top: 1px dashed #ffffff;
+            left: 10px;
+            right: 10px;
+            top: 0px;
+        }
+
+        #pic-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #pic {
+            height: 100vh;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // 使用 Fetch API 讀取本地 JSON 文件
+        fetch('cheat.json')
+            .then(response => response.json())
+            .then(data => {
+                // 數據處理
+                const fraudMethods = {};
+                data.forEach(entry => {
+                    const method = entry.詐騙管道;
+                    if (fraudMethods[method]) {
+                        fraudMethods[method]++;
+                    } else {
+                        fraudMethods[method] = 1;
+                    }
+                });
+
+                const pieData = Object.keys(fraudMethods).map(key => ({
+                    name: key,
+                    value: fraudMethods[key]
+                }));
+
+                // 初始化 ECharts 實例
+                var myChart = echarts.init(document.getElementById('pic'));
+
+                // 指定圖表的配置項和數據
+                var option = {
+                    title: {
+                        text: '詐騙案件統計',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: "item",
+                        formatter: "{a}<br/>{b}:{c}({d}%)",
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        top: 30,
+                        left: 10
+                    },
+                    series: [{
+                        name: '案件數量',
+                        type: 'pie',
+                        data: pieData,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }]
+                };
+
+                // 使用配置項和數據生成圖表
+                myChart.setOption(option);
+            })
+            .catch(error => console.error('Error loading JSON:', error));
+    </script>
+    <div id="pic-container">
+        <div id="pic" style="width: 1000px; height: 600px;"></div>
+    </div>
+
+    <input type="checkbox" name="" id="sideMenu-active">
+
+    <div class="sideMenu">
+        <nav>
+            <a href="http://127.0.0.1:8000/main.html"><i class="fas fa-chalkboard"></i>首頁</a>
+            <a href="http://127.0.0.1:8000/pie-category.html"><i class="fas fa-chalkboard"></i>詐騙案件統計</a>
+            <a href="http://127.0.0.1:8000/detail.html"><i class="fas fa-user-graduate"></i>詐騙手法大全</a>
+            <a href="http://127.0.0.1:8000/bar-category.html"><i class="fas fa-sitemap"></i>詐騙管道搜尋</a>
+            <a href="http://127.0.0.1:8000/bar-time.html"><i class="fas fa-book-reader"></i>按月份搜尋</a>
+            <a href="http://127.0.0.1:8000/line-month.html"><i class="fas fa-trophy"></i>詐騙案件發生月份</a>
+            <a href="http://127.0.0.1:8000/many-line.html"><i class="fas fa-trophy"></i>詐騙管道與月份統計</a>
+            <a href="http://127.0.0.1:8000/search.html"><i class="fas fa-trophy"></i>搜尋詐騙Line ID</a>
+
+        </nav>
+        <label for="sideMenu-active">
+            <i class="fas fa-angle-right"></i>
+        </label>
+        <!-- label 寫在 nav 下方是為了比較好看到 -->
+    </div>
+
+
+
+
+</body>
+
+</html>

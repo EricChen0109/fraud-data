@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柱狀圖</title>
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <!-- 準備一個 DOM 容器 -->
+    <div id="main" style="width: 1000px; height: 600px;"></div>
+
+    <script>
+        // 使用 Fetch API 讀取本地 JSON 文件
+        fetch('cheat.json')
+            .then(response => response.json())
+            .then(data => {
+                // 數據處理
+                const fraudMethods = {};
+                data.forEach(entry => {
+                    const method = entry.月份;
+                    if (fraudMethods[method]) {
+                        fraudMethods[method]++;
+                    } else {
+                        fraudMethods[method] = 1;
+                    }
+                });
+
+                const categories = Object.keys(fraudMethods);
+                const values = Object.values(fraudMethods);
+
+                // 初始化 ECharts 實例
+                var myChart = echarts.init(document.getElementById('main'));
+
+                // 指定圖表的配置項和數據
+                var option = {
+                    title: {
+                        text: '詐騙案件統計'
+                    },
+                    tooltip: {},
+                    xAxis: {
+                        type: 'category',
+                        data: categories
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        name: '案件數量',
+                        type: 'bar',
+                        data: values
+                    }]
+                };
+
+                // 使用配置項和數據生成圖表
+                myChart.setOption(option);
+            })
+            .catch(error => console.error('Error loading JSON:', error));
+    </script>
+</body>
+
+</html>
+<!------------------------------------------------------------------------------->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECharts Bar Chart Example</title>
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+        /* 設置body的樣式以使用Flexbox */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+            height: 100vh;
+            /* 設置高度為視窗高度 */
+            margin: 0;
+            /* 移除默認邊距 */
+        }
+
+        /* 設置圖表容器的樣式 */
+        #main {
+            width: 600px;
+            height: 400px;
+        }
+
+        /* 設置選擇和按鈕的樣式 */
+        .controls {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <select id="monthSelect">
+            <option value="1月">1月</option>
+            <option value="2月">2月</option>
+            <option value="3月">3月</option>
+            <option value="4月">4月</option>
+            <option value="5月">5月</option>
+            <option value="6月">6月</option>
+            <option value="7月">7月</option>
+            <option value="8月">8月</option>
+            <option value="9月">9月</option>
+            <option value="10月">10月</option>
+            <option value="11月">11月</option>
+            <option value="12月">12月</option>
+
+            <!-- 添加其他月份 -->
+        </select>
+        <button id="updateButton">顯示圖表</button>
+    </div>
+    <!-- 準備一個 DOM 容器 -->
+    <div id="main"></div>
+
+    <script>
+        let chartData = [];
+        let myChart;
+
+        // 初始化 ECharts 實例
+        document.addEventListener('DOMContentLoaded', function () {
+            myChart = echarts.init(document.getElementById('main'));
+
+            // 使用 Fetch API 讀取本地 JSON 文件
+            fetch('cheat.json')
+                .then(response => response.json())
+                .then(data => {
+                    chartData = data;
+                    updateChart('1月');  // 預設顯示1月份數據
+                })
+                .catch(error => console.error('Error loading JSON:', error));
+        });
+
+        document.getElementById('updateButton').addEventListener('click', function () {
+            const selectedMonth = document.getElementById('monthSelect').value;
+            updateChart(selectedMonth);
+        });
+
+        function updateChart(month) {
+            const fraudMethods = {};
+            chartData.forEach(entry => {
+                const entryDate = entry.月份;
+                if (entryDate == month) {
+                    const method = entry.詐騙管道;
+                    if (fraudMethods[method]) {
+                        fraudMethods[method]++;
+                    } else {
+                        fraudMethods[method] = 1;
+                    }
+                }
+            });
+
+            const categories = Object.keys(fraudMethods);
+            const values = Object.values(fraudMethods);
+
+            // 指定圖表的配置項和數據
+            const option = {
+                title: {
+                    text: `${month}詐騙案件統計`
+                },
+                tooltip: {},
+                xAxis: {
+                    type: 'category',
+                    data: categories
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    name: '案件數量',
+                    type: 'bar',
+                    data: values
+                }]
+            };
+
+            // 使用配置項和數據生成圖表
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

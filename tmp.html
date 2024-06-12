@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜尋本地JSON檔案</title>
+    <script>
+        function searchJSON() {
+            var input = document.getElementById('searchInput').value;
+            var outputDiv = document.getElementById('output');
+
+            // 清空上一次的結果
+            outputDiv.innerHTML = '';
+
+            // 讀取本地JSON檔案
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    // 在JSON中搜尋輸入的名稱
+                    var results = data.filter(item => item.帳號 === input);
+                    if (results.length > 0) {
+                        // 如果有相符的內容，將結果顯示在網頁上
+                        results.forEach(result => {
+                            var paragraph = document.createElement('p');
+                            paragraph.textContent = 'Name: ' + result.帳號 + ' , 通報日期: ' + result.通報日期;
+                            outputDiv.appendChild(paragraph);
+                        });
+                    } else {
+                        // 如果沒有相符的內容，顯示訊息
+                        var message = document.createElement('p');
+                        message.textContent = '找不到相符的內容。';
+                        outputDiv.appendChild(message);
+                    }
+                })
+                .catch(error => {
+                    // 處理錯誤
+                    console.error('讀取JSON檔案時發生錯誤:', error);
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <h1>搜尋本地JSON檔案</h1>
+    <input type="text" id="searchInput" placeholder="輸入名稱">
+    <button onclick="searchJSON()">搜尋</button>
+    <div id="output"></div>
+</body>
+
+</html>
